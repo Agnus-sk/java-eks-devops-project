@@ -1,4 +1,3 @@
-```yaml
 name: CI-CD Pipeline
 
 on:
@@ -40,8 +39,8 @@ jobs:
 
       - name: Login to Amazon ECR
         run: |
-          aws ecr get-login-password --region $AWS_REGION | \
-          docker login --username AWS --password-stdin \
+          aws ecr get-login-password --region $AWS_REGION | docker login \
+          --username AWS --password-stdin \
           $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
 
       - name: Set image tag
@@ -58,8 +57,7 @@ jobs:
 
       - name: Push Docker image
         run: |
-          docker push \
-          $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:$TAG
+          docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:$TAG
 
       - name: Update kubeconfig
         run: |
@@ -69,4 +67,7 @@ jobs:
         run: |
           kubectl set image deployment/eks-demo-deployment \
           eks-demo-container=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:$TAG
-```
+
+      - name: Verify rollout
+        run: |
+          kubectl rollout status deployment/eks-demo-deployment
