@@ -41,7 +41,7 @@ jobs:
     - name: Build Docker image
       run: |
         docker build \
-        -f app/springboot-app/eks-demo/Dockerfile \
+        -f docker/Dockerfile \
         -t $ECR_REPOSITORY:$TAG .
 
     - name: Tag Docker image
