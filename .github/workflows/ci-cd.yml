@@ -17,8 +17,19 @@ jobs:
 
     steps:
 
-    - name: Checkout code
+    - name: Checkout repository
       uses: actions/checkout@v4
+
+    - name: Set up Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Build Spring Boot application
+      run: |
+        cd app/springboot-app/eks-demo
+        mvn clean package
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -30,19 +41,12 @@ jobs:
     - name: Login to Amazon ECR
       uses: aws-actions/amazon-ecr-login@v2
 
-    - name: Build Spring Boot application
-      run: |
-        cd app/springboot-app/eks-demo
-        mvn clean package
-
     - name: Set image tag
       run: echo "TAG=${GITHUB_SHA::7}" >> $GITHUB_ENV
 
     - name: Build Docker image
       run: |
-        docker build \
-        -f docker/Dockerfile \
-        -t $ECR_REPOSITORY:$TAG .
+        docker build -t $ECR_REPOSITORY:$TAG -f docker/Dockerfile .
 
     - name: Tag Docker image
       run: |
